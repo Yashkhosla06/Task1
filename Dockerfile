@@ -1,6 +1,6 @@
-FROM eclipse-temurin:17-jdk-alpine
-VOLUME /tmp
-RUN mkdir -p /app
-COPY target/*.jar /app/app.jar
-ENTRYPOINT ["java","-jar","/app/app.jar"]
-
+FROM maven:3-eclipse-temurin-17 AS build
+COPY . .
+RUN mvn clean package -DskipTests
+FROM eclipse-temurin:17-alpine
+COPY --from=build /target/*.jar rest-api-template.jar
+ENTRYPOINT ["java","-Dspring.profiles.active=render","-jar","rest-api-template.jar"]
